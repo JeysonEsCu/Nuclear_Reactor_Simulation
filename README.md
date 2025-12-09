@@ -20,6 +20,7 @@ Nuclear_Reactor_simulation/
 |--src/ <- All modules/classes
 | |
 | |-- area_reactor.py <- Reactor framework / container
+| |-- control_rods.py <- Neutron absorbers/Nuclear fuel/..
 | |
 | |-- **init**.py
 |-- README.md
