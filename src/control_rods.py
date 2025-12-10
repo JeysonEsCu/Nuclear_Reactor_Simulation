@@ -13,7 +13,7 @@ class ControlRod:
     """
 
     def __init__(self, x_position: float, y_position: float, width: float, 
-                 depth: float, height: float, label: str):
+                 depth: float, height: float, color_rod: str, label: str):
         """
         Args:
             x_position, y_position: Horizontal base center position of the rod.
@@ -28,6 +28,7 @@ class ControlRod:
         self.width      = width
         self.depth      = depth
         self.label      = label
+        self.color_rod  = color_rod
 
     def set_height(self, new_height: float) -> None:
         """Update rod height."""
@@ -56,7 +57,7 @@ class ControlRod:
             [(x1,y0,0),(x1,y1,0),(x1,y1,self.height),(x1,y0,self.height)],
         ]
 
-        poly3d = Poly3DCollection(faces, facecolors="blue", alpha=0.35, linewidths=0.5)
+        poly3d = Poly3DCollection(faces, facecolors=self.color_rod, alpha=0.35, linewidths=0.5)
         ax.add_collection3d(poly3d)
 
         # Label
