@@ -27,6 +27,7 @@ Nuclear_Reactor_simulation/
 ```bash
 git clone https://github.com/JeysonEsCu/Nuclear_Reactor_Simulation.git
 cd Nuclear_Reactor_simulation
+```
 
 ## Install dependencies
 pip install -r requirements.txt
