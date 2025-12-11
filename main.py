@@ -31,6 +31,7 @@ def main():
     x_fuel2, y_fuel2 = 7, 9
     height_reactor = 8
     # geometry and position of neutron flux monitor
+    monitor_height = 0.95
     width_flux_mon = 0.95
     depth_flux_mon = 0.95
     x_flux_monitor1, y_flux_monitor1 = 7, 3
@@ -53,17 +54,13 @@ def main():
     
     neutron_flux_monitor = [
         NeutronMonitor(x_position=x_flux_monitor1, y_position=y_flux_monitor1, 
-                       width=width_flux_mon, depth=depth_flux_mon, height=0, #height_reactor, 
-                       base_height=0.0, color_rod="gray", label="flux")
+                       width=width_flux_mon, depth=depth_flux_mon, height=monitor_height,
+                       color_rod="gray", label="flux\nA")
     ]
 
     # plot all the rods
     for rod in absorber_rods + nuclear_fuel_rods + neutron_flux_monitor:
         reactor.add(rod)
-#    for rod in nuclear_fuel_rods:
-#        reactor.add(rod)
-#    for rod in neutron_flux_monitor:
-#        reactor.add(rod)
         
     # Set up
     fig = plt.figure(figsize=(12, 8))
@@ -77,18 +74,27 @@ def main():
     # Draw once initially
     reactor.draw(ax)
 
-    slider_xpos   = 0.80
-    slider_ypos   = 0.25    # starting position of first slider
-    slider_height = 0.40    # initial high of the rods
-    slider_width  = 0.03
+    # Absorber sliders
+    abs_slider_xpos   = 0.80
+    abs_slider_ypos   = 0.25    # starting position of first slider
+    abs_slider_height = 0.40    # initial high of the rods
+    abs_slider_width  = 0.03
 
-    fig.text(slider_xpos + 0.13, slider_ypos + slider_height + 0.05 + 0.01,
-         "Control Rod Heights", color="black", ha="center", fontsize=10)
+    # Flux sliders
+    flux_slider_xpos   = 0.10
+    flux_slider_ypos   = 0.25    # starting position of first slider
+    flux_slider_height = 0.40    # initial high of the rods
+    flux_slider_width  = 0.03
     
     # sliders absorbers
+    fig.text(abs_slider_xpos + 0.13, abs_slider_ypos + abs_slider_height + 0.05 + 0.01,
+         "Control Rod Heights", color="black", ha="center", fontsize=10)
+    
     sliders_absorber = []
+    
     for rod in absorber_rods:
-        ax_slider = fig.add_axes([slider_xpos, slider_ypos, slider_width, slider_height])
+        ax_slider = fig.add_axes([abs_slider_xpos, abs_slider_ypos, 
+                                  abs_slider_width, abs_slider_height])
         slider = Slider(
             ax_slider,
             label=f"{rod.label}",
@@ -99,19 +105,23 @@ def main():
             color="blue"
         )
         sliders_absorber.append(slider)
-        slider_xpos += slider_width + 0.015  # move next slider left
-
+        abs_slider_xpos += abs_slider_width + 0.015  # move next slider left
+    
     # sliders monitors
-    sliders_monitors = []
+    fig.text(flux_slider_xpos, flux_slider_ypos + flux_slider_height + 0.05 + 0.01,
+         "Flux monitor Heights", color="black", ha="center", fontsize=10)
 
+    sliders_monitors = []
+    
     for i, monitor in enumerate(neutron_flux_monitor):
-        ax_slider_monitor = fig.add_axes([0.1, 0.25 + i*0.45, 0.03, 0.40])
+        ax_slider_monitor = fig.add_axes([flux_slider_xpos, flux_slider_ypos + i*0.45, 
+                                          flux_slider_width, flux_slider_height])
         slider_mon = Slider(
             ax_slider_monitor,
             label=f"{monitor.label}",
             valmin=0.0,
-            valmax=reactor.height, #- monitor.height,
-            valinit=0, #monitor.base_height,
+            valmax=reactor.height - monitor.height,
+            valinit=0,
             orientation='vertical',
             color="gray"
         )
@@ -137,11 +147,11 @@ def main():
         fig.canvas.draw_idle()
 
     # connect all sliders
-    for s in sliders_absorber:
+    for s in sliders_absorber + sliders_monitors:
         s.on_changed(update_all)
 
-    for s in sliders_monitors:
-        s.on_changed(update_all)
+    #for s in sliders_monitors:
+    #    s.on_changed(update_all)
 
     plt.show()
 
