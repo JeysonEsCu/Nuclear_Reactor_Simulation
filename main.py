@@ -53,7 +53,7 @@ def main():
     
     neutron_flux_monitor = [
         NeutronMonitor(x_position=x_flux_monitor1, y_position=y_flux_monitor1, 
-                       width=width_flux_mon, depth=depth_flux_mon, height=height_reactor, 
+                       width=width_flux_mon, depth=depth_flux_mon, height=0, #height_reactor, 
                        base_height=0.0, color_rod="gray", label="flux")
     ]
 
@@ -77,15 +77,16 @@ def main():
     # Draw once initially
     reactor.draw(ax)
 
-    # Create sliders (one for each Absorber rod)
-    sliders = []
     slider_xpos   = 0.80
     slider_ypos   = 0.25    # starting position of first slider
     slider_height = 0.40    # initial high of the rods
     slider_width  = 0.03
 
-    fig.text(slider_xpos + 0.065, slider_ypos + slider_height + 0.05 + 0.01,
+    fig.text(slider_xpos + 0.13, slider_ypos + slider_height + 0.05 + 0.01,
          "Control Rod Heights", color="black", ha="center", fontsize=10)
+    
+    # sliders absorbers
+    sliders_absorber = []
     for rod in absorber_rods:
         ax_slider = fig.add_axes([slider_xpos, slider_ypos, slider_width, slider_height])
         slider = Slider(
@@ -95,56 +96,52 @@ def main():
             valmax=reactor.height,
             valinit=0.0, #rod.height,
             orientation='vertical',
+            color="blue"
+        )
+        sliders_absorber.append(slider)
+        slider_xpos += slider_width + 0.015  # move next slider left
+
+    # sliders monitors
+    sliders_monitors = []
+
+    for i, monitor in enumerate(neutron_flux_monitor):
+        ax_slider_monitor = fig.add_axes([0.1, 0.25 + i*0.45, 0.03, 0.40])
+        slider_mon = Slider(
+            ax_slider_monitor,
+            label=f"{monitor.label}",
+            valmin=0.0,
+            valmax=reactor.height, #- monitor.height,
+            valinit=0, #monitor.base_height,
+            orientation='vertical',
             color="gray"
         )
-        sliders.append(slider)
-        slider_xpos += slider_width + 0.03  # move next slider left
+        sliders_monitors.append(slider_mon)
 
     # Slider update handler
-    def update(_):
+    def update_all(val):
         ax.cla()  # clear drawing
         ax.set_xlim(0, reactor.width)
         ax.set_ylim(0, reactor.depth)
         ax.set_zlim(0, reactor.height)
 
-        # Apply slider values to absorber rod heights
-        for slider, rod in zip(sliders, absorber_rods):
-            rod.set_height(slider.val)
+        # update absorbers
+        for s, rod in zip(sliders_absorber, absorber_rods):
+            rod.set_height(s.val)
 
-        # Redraw reactor with updated rod heights
+        # update monitors
+        for s, m in zip(sliders_monitors, neutron_flux_monitor):
+            m.base_height = s.val
+
+        # redraw everything
         reactor.draw(ax)
         fig.canvas.draw_idle()
 
-    for slider in sliders:
-        slider.on_changed(update)
-        
-    # Create sliders (one for each flux monitor rod)
-    slider_monitors = []
+    # connect all sliders
+    for s in sliders_absorber:
+        s.on_changed(update_all)
 
-    for i, monitor in enumerate(neutron_flux_monitor):
-        ax_slider_monitor = fig.add_axes([0.95, 0.25 + i*0.45, 0.03, 0.40])
-        slider = Slider(
-            ax_slider_monitor,
-            label=f"{monitor.label}",
-            valmin=0.0,
-            valmax=reactor.height - monitor.height,
-            valinit=monitor.base_height,
-            orientation='vertical',
-            color="orange"
-        )
-
-        def update_monitor(val, m=monitor):
-            m.base_height = val
-            ax.cla()
-            ax.set_xlim(0, reactor.width)
-            ax.set_ylim(0, reactor.depth)
-            ax.set_zlim(0, reactor.height)
-            for rod in absorber_rods + nuclear_fuel_rods + neutron_flux_monitor:
-                rod.draw(ax)
-            fig.canvas.draw_idle()
-
-        slider.on_changed(update_monitor)
-        slider_monitors.append(slider)
+    for s in sliders_monitors:
+        s.on_changed(update_all)
 
     plt.show()
 

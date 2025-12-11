@@ -8,18 +8,25 @@ class NeutronMonitor(ControlRod):
     Rectangular detector box to measure neutron flux.
     Inherits from ControlRod but allows to specify base height.
     """
+    # Call the construct ControlRod and reuse the logic
     def __init__(self, x_position: float, y_position: float, base_height: float,
                  width: float, depth: float, height: float, color_rod: str, label: str = "Monitor"):
+        # From ControlRod
         super().__init__(x_position, y_position, width, depth, height, color_rod, label)
+        # More attribute, only for NeutronMonitor
         self.base_height = base_height  # base Z position of the monitor
-
+    
+    # New attributes:
     def set_base_height(self, new_base: float):
         """Update the vertical position of the monitor."""
         self.base_height = new_base
-
+    # Compacting by using the attributes from the ControlRod class
     def draw(self, ax: Axes3D) -> None:
         """Plot the rod, shifted by base_height."""
+        # original z
         original_height = self.height
         self.height += self.base_height
+        # From ControlRod
         super().draw(ax)
+        # Original height
         self.height = original_height

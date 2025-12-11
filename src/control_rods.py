@@ -11,7 +11,6 @@ class ControlRod:
     """
     Represents a vertical rectangular control rod inside the reactor.
     """
-
     def __init__(self, x_position: float, y_position: float, width: float, 
                  depth: float, height: float, color_rod: str, label: str):
         """
