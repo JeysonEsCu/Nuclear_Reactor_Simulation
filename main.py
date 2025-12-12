@@ -154,6 +154,8 @@ def main():
     #    s.on_changed(update_all)
 
     plt.show()
+import numpy
+print(numpy.__version__)
 
 if __name__ == "__main__":
     main()
