@@ -1,7 +1,6 @@
 from __future__ import annotations
-# particle.py
-
 import numpy as np
+
 """
 Defines a single particle (e.g., neutron) for reactor simulation.
 
@@ -58,7 +57,6 @@ class Particle:
             True if particle is still active
         """
         return self.alive
-    
-    # method used to define the string representation of an object
+
     def __repr__(self) -> str:
         return f"Particle(pos={self.position}, vel={self.velocity}, energy={self.energy:.2f}, alive={self.alive})"
