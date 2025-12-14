@@ -14,7 +14,7 @@ def create_sliders(fig, elements_list: list, slider_position: tuple,
     x_pos, y_pos = slider_position
     slider_width, slider_height = slider_dimension   
     
-    fig.text(x_pos + 0.13, y_pos + slider_height + 0.06, title, ha="center")
+    fig.text(x_pos + 0.06, y_pos + slider_height + 0.06, title, ha="center")
     
     store_slider = []
     for element in elements_list:
@@ -28,7 +28,9 @@ def create_sliders(fig, elements_list: list, slider_position: tuple,
     return store_slider
 
 def update_simulation(ax, fig, reactor: ReactorArea, particle_manager: ParticleManager, 
-                      sliders_elements: list, elements_list: list, animation_state:bool,
+                      sliders_elements: list, elements_list: list, 
+                      monitor_sliders: list, monitors: list,
+                      animation_state:bool,
                       energy_distribution: list, dt: float = 0.05) -> None:
     """
     Update full simulation step:
@@ -41,6 +43,10 @@ def update_simulation(ax, fig, reactor: ReactorArea, particle_manager: ParticleM
     ax.set_ylim(0, reactor.depth)
     ax.set_zlim(0, reactor.height)
 
+    # Update monitor positions (keep height fixed)
+    for slider, monitor in zip(monitor_sliders, monitors):
+        monitor.base_height = slider.val
+        
     # Update rods from sliders
     for slider, element in zip(sliders_elements, elements_list):
         # Return whether (T/F) the "element" object has an attribute with 
