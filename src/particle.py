@@ -18,6 +18,7 @@ class Particle:
             energy: Kinetic energy of the particle.
         """
         self.position = np.array(position)
+        self.prev_position = self.position.copy()   # used for collisions
         self.velocity = np.array(velocity)
         self.energy   = energy
         self.alive    = True  # Flag to know if particle is active
@@ -32,6 +33,7 @@ class Particle:
         if not self.alive:
             return
         # Simple linear motion
+        self.prev_position = self.position.copy()
         self.position += self.velocity * dt
         self.history.append(self.position.copy())
 
