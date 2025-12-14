@@ -5,12 +5,13 @@ and a simple moving particle (neutron) demo with sliders.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
-from mpl_toolkits.mplot3d import Axes3D
+#from matplotlib.widgets import Slider
+#from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 
 from src.area_reactor import ReactorArea
 from src.particle_manager import ParticleManager
-from src.particle_visualization import draw_particles
+from src.particle_visualization import draw_particles, add_energy_colorbar
 from src.reactor_builder import element_on_grid, flux_monitor_on_grid, populate_reactor, populate_particles
 from src.neutron_energy_distribution import neutron_energy_distribution
 from src.simulation_helpers import create_sliders, update_simulation, connect_keyboard
@@ -45,10 +46,10 @@ def main():
     # --------------------------
     # src/reactor_builder.py
     absorber_rods = element_on_grid(absorber_coords, width, depth, 
-                    height_absorber, "blue", "Absorber")
+                    height_absorber, "blue", "Abs")
     
     neutron_flux_monitor = element_on_grid(monitor_coords, width_flux_mon, depth_flux_mon, 
-                                           monitor_height, "gray", "monitor")
+                                           monitor_height, "gray", "mon")
 
     nuclear_fuel_rods = flux_monitor_on_grid(fuel_coords, width, depth, 
                     height_reactor, "green")
@@ -84,7 +85,11 @@ def main():
     fig.patch.set_facecolor("white")
 
     reactor.draw(ax)
-    draw_particles(ax, particle_manager)
+    # particles in a range of colors, the last argument refers the color
+    draw_particles(ax, particle_manager, energies, "turbo")
+    
+    # Add colorbar
+    add_energy_colorbar(fig, energies, "turbo")
 
     # --------------------------
     # Sliders
@@ -110,11 +115,11 @@ def main():
     animation_state = {"running": False}
     connect_keyboard(fig, animation_state)
     
-    while plt.fignum_exists(fig.number):
-        update_simulation(ax, fig, reactor, particle_manager, absorber_slider, 
-                          absorber_rods, animation_state, dt=0.05)
-        plt.pause(0.05)
-
+    animation = FuncAnimation(fig, lambda frame: update_simulation(
+        ax, fig, reactor, particle_manager, absorber_slider + monitor_slider, 
+        absorber_rods, monitor_slider, neutron_flux_monitor, animation_state, 
+        energies, dt=0.05), interval = 50)
+    
     plt.show()
 
 if __name__ == "__main__":
