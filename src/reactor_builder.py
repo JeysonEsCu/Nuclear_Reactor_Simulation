@@ -12,6 +12,10 @@ def element_on_grid(coordinates_list: list, width: float, depth: float,
     """
     Works for absorber and fuel rods
     """
+    # if statement for debug and experimentation in the code
+    if not coordinates_list:    # when coordinates_list is None or []
+        return []
+    
     elements = []
     for i, (x, y) in enumerate(coordinates_list):
         elements.append(ControlRod(x, y, width, depth, height, color, 
